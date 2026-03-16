@@ -1,48 +1,64 @@
 const sheetId = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
-// Usamos la exportación básica que no pide autenticación extra
-const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&id=${sheetId}&gid=0`;
+const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
 
 async function fetchData() {
     try {
         const response = await fetch(base);
-        if (!response.ok) throw new Error('Error en respuesta de red');
         const data = await response.text();
-        
-        const rows = data.split('\n');
+        const rows = data.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
         const app = document.getElementById('app');
         app.innerHTML = ''; 
 
-        // Empezamos en 1 para saltear encabezados
+        // Organizador de secciones
+        const secciones = {
+            'Inicio': [],
+            'Cursos': [],
+            'Historial': [],
+            'Descargables': [],
+            'Amigas': []
+        };
+
+        // Clasificar datos
         for (let i = 1; i < rows.length; i++) {
-            const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split que respeta comas dentro de comillas
-            
-            if (cols.length >= 2 && cols[1]) {
-                const seccion = cols[0] ? cols[0].replace(/"/g, '') : '';
-                const titulo = cols[1].replace(/"/g, '');
-                const desc = cols[2] ? cols[2].replace(/"/g, '') : '';
-                const link = cols[3] ? cols[3].replace(/"/g, '').trim() : '';
-                const imagen = cols[4] ? cols[4].replace(/"/g, '').trim() : '';
-
-                let mediaHTML = '';
-                if (link.includes('youtube.com') || link.includes('youtu.be')) {
-                    const videoId = link.split('v=')[1] || link.split('/').pop();
-                    mediaHTML = `<div class="video-container"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`;
-                } else {
-                    mediaHTML = `<img src="${imagen || 'https://via.placeholder.com/300'}" style="width:100%;">`;
-                }
-
-                app.innerHTML += `
-                    <div class="item ${seccion.toLowerCase()}">
-                        ${mediaHTML}
-                        <h3>${titulo}</h3>
-                        <p>${desc}</p>
-                        <a href="${link}" target="_blank">Ver más</a>
-                    </div>`;
+            const [sec, tit, desc, lnk, img] = rows[i].map(c => c ? c.replace(/"/g, '').trim() : '');
+            if (secciones[sec]) {
+                secciones[sec].push({ tit, desc, lnk, img });
             }
         }
+
+        // Renderizar cada sección con su propio estilo
+        for (const [nombre, items] of Object.entries(secciones)) {
+            if (items.length === 0) continue;
+
+            const sectionHTML = document.createElement('section');
+            sectionHTML.className = `modulo-${nombre.toLowerCase()}`;
+            sectionHTML.innerHTML = `<h2>${nombre}</h2><div class="grid-${nombre.toLowerCase()}"></div>`;
+            const grid = sectionHTML.querySelector('div');
+
+            items.forEach(item => {
+                let media = '';
+                if (item.lnk.includes('youtube.com') || item.lnk.includes('youtu.be')) {
+                    const vId = item.lnk.split('v=')[1] || item.lnk.split('/').pop();
+                    media = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${vId}" frameborder="0" allowfullscreen></iframe></div>`;
+                } else if (item.img) {
+                    media = `<img src="${item.img}" alt="${item.tit}">`;
+                }
+
+                grid.innerHTML += `
+                    <div class="card">
+                        ${media}
+                        <div class="info">
+                            <h3>${item.tit}</h3>
+                            <p>${item.desc}</p>
+                            ${item.lnk ? `<a href="${item.lnk}" target="_blank" class="btn">Explorar</a>` : ''}
+                        </div>
+                    </div>`;
+            });
+            app.appendChild(sectionHTML);
+        }
     } catch (e) {
-        console.error("Error detallado:", e);
-        document.getElementById('app').innerHTML = '<p>Cargando... si el error persiste, refrescá con Ctrl+F5.</p>';
+        console.error(e);
+        app.innerHTML = '<p>Sincronizando el ecosistema...</p>';
     }
 }
 fetchData();
