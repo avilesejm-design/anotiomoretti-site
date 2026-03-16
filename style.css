@@ -1,93 +1,19 @@
-/* Estética N-PRDGM: Bioconstrucción Digital */
-:root {
-    --color-fondo: #f4f1ea; /* Papel/Arena */
-    --color-texto: #2c2c2c;
-    --color-acento: #5d6d31; /* Verde musgo/tierra */
-    --fuente-titulo: 'Georgia', serif;
+.home-block {
+    height: 100vh; /* Ocupa toda la pantalla */
+    background-attachment: fixed; /* El secreto del efecto parallax */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-body {
-    background-color: var(--color-fondo);
-    color: var(--color-texto);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 20px;
-    line-height: 1.6;
-}
-
-header {
+.overlay-medieval {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px); /* Efecto vidrio esmerilado moderno */
+    padding: 40px;
+    border: 2px solid #5d634f;
+    color: #f4ece1;
     text-align: center;
-    border-bottom: 2px solid var(--color-acento);
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-}
-
-h1 {
-    font-family: var(--fuente-titulo);
-    letter-spacing: 4px;
-    color: var(--color-acento);
-}
-
-#app {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.item {
-    background: white;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
-}
-
-.item:hover {
-    transform: translateY(-5px);
-}
-
-.item img {
-    border-radius: 2px;
-    margin-bottom: 15px;
-    background: #ddd; /* Placeholder mientras carga */
-}
-
-h3 {
-    font-family: var(--fuente-titulo);
-    margin-top: 0;
-}
-
-a {
-    display: inline-block;
-    margin-top: 15px;
-    color: var(--color-acento);
-    text-decoration: none;
-    font-weight: bold;
-    border: 1px solid var(--color-acento);
-    padding: 8px 15px;
-    border-radius: 3px;
-}
-
-a:hover {
-    background: var(--color-acento);
-    color: white;
-}
-
-.video-container {
-    position: relative;
-    padding-bottom: 56.25%; /* Relación de aspecto 16:9 */
-    height: 0;
-    overflow: hidden;
-    margin-bottom: 15px;
-}
-
-.video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 4px;
 }
