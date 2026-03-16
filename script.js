@@ -1,50 +1,33 @@
 const sheetId = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
 const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
 
-// 1. Detectar qué sección queremos mostrar (sacado del link ?s=Nombre)
-const params = new URLSearchParams(window.location.search);
-const seccionActiva = params.get('s'); 
+// Captura qué sección pidió el usuario en el link
+const urlParams = new URLSearchParams(window.location.search);
+const seccionDestino = urlParams.get('s'); 
 
-async function fetchData() {
-    if (!seccionActiva) return; // Si es la Home, no hace nada (o maneja la lógica de Home)
-    
-    document.getElementById('titulo-seccion').innerText = seccionActiva;
-    document.title = `N-PRDGM | ${seccionActiva}`;
+async function cargarContenido() {
+    const res = await fetch(base);
+    const texto = await res.text();
+    const filas = texto.split('\n').map(f => f.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/));
 
-    try {
-        const response = await fetch(base);
-        const data = await response.text();
-        const rows = data.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-        const app = document.getElementById('app');
-        app.innerHTML = '';
+    const contenedor = document.getElementById('app');
+    contenedor.innerHTML = '';
 
-        for (let i = 1; i < rows.length; i++) {
-            const [sec, tit, desc, lnk, img] = rows[i].map(c => c ? c.replace(/"/g, '').trim() : '');
-            
-            // FILTRO CRÍTICO: Solo mostrar si coincide con la sección del link
-            if (sec.toLowerCase() === seccionActiva.toLowerCase()) {
-                let media = '';
-                if (lnk.includes('youtube.com') || lnk.includes('youtu.be')) {
-                    const vId = lnk.split('v=')[1] || lnk.split('/').pop();
-                    media = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${vId}" frameborder="0" allowfullscreen></iframe></div>`;
-                } else if (img) {
-                    media = `<img src="${img}" alt="${tit}">`;
-                }
+    filas.forEach((cols, index) => {
+        if (index === 0) return; // Saltear encabezados
+        
+        const [seccion, titulo, desc, link, img] = cols.map(c => c.replace(/"/g, '').trim());
 
-                app.innerHTML += `
-                    <div class="card-interna">
-                        ${media}
-                        <div class="info">
-                            <h3>${tit}</h3>
-                            <p>${desc}</p>
-                            ${lnk ? `<a href="${lnk}" target="_blank" class="btn">Abrir Recurso</a>` : ''}
-                        </div>
-                    </div>`;
-            }
+        // EL FILTRO MÁGICO:
+        if (seccion.toLowerCase() === seccionDestino.toLowerCase()) {
+            contenedor.innerHTML += `
+                <div class="card-medieval">
+                    ${img ? `<img src="${img}">` : ''}
+                    <h3>${titulo}</h3>
+                    <p>${desc}</p>
+                    <a href="${link}" target="_blank">Ver más</a>
+                </div>`;
         }
-    } catch (e) {
-        console.error(e);
-    }
+    });
 }
-
-fetchData();
+cargarContenido();
