@@ -1,53 +1,319 @@
-const sheetId = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
-const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-PRDGM | Antonio Moretti</title>
 
-// Detectamos la sección desde la URL (ej: seccion.html?s=Historial)
-const params = new URLSearchParams(window.location.search);
-const seccionActiva = params.get('s');
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
 
-async function cargarPortal() {
-    if (!seccionActiva) return;
-
-    document.getElementById('titulo-pagina').innerText = seccionActiva;
-    
-    try {
-        const response = await fetch(base);
-        const csv = await response.text();
-        const filas = csv.split('\n').map(f => f.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/));
-        const app = document.getElementById('app');
-        
-        app.innerHTML = '';
-
-        filas.forEach((col, i) => {
-            if (i === 0) return;
-            const [sec, tit, desc, lnk, img] = col.map(c => c ? c.replace(/"/g, '').trim() : '');
-
-            // Si la sección en el Sheets coincide con la URL...
-            if (sec.toLowerCase() === seccionActiva.toLowerCase()) {
-                let mediaHTML = '';
-                
-                // Si es video de YouTube
-                if (lnk.includes('youtube.com') || lnk.includes('youtu.be')) {
-                    const vId = lnk.split('v=')[1] || lnk.split('/').pop();
-                    mediaHTML = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:15px;border:2px solid var(--oro-viejo);">
-                                    <iframe src="https://www.youtube.com/embed/${vId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
-                                 </div>`;
-                } else {
-                    mediaHTML = `<img src="${img || 'https://via.placeholder.com/400x250'}" style="width:100%; border:2px solid var(--oro-viejo); margin-bottom:15px;">`;
-                }
-
-                app.innerHTML += `
-                    <article class="organic-card">
-                        ${mediaHTML}
-                        <h4 style="font-family:'MedievalSharp';color:var(--oro-viejo);margin-bottom:10px;">${tit}</h4>
-                        <p>${desc}</p>
-                        ${lnk ? `<a href="${lnk}" target="_blank" class="btn" style="display:inline-block; margin-top:15px; font-size:0.7rem;">Abrir</a>` : ''}
-                    </article>`;
-            }
-        });
-    } catch (e) {
-        console.error("Error cargando el portal:", e);
-    }
+<style>
+:root {
+    --oro-viejo: #b8926a;
+    --tierra: #1a1512;
+    --piedra-oscura: #2d241e;
+    --musgo-profundo: #2a332a;
+    --barro-seco: #4e342e;
+    --lacre: #8b1e1e;
+    --texto-pergamino: #d7ccc8;
 }
 
-cargarPortal();
+body.tema-pergamino{
+    --oro-viejo:#c6a46b;
+    --tierra:#2b1f16;
+    --piedra-oscura:#e8dcc4;
+    --musgo-profundo:#d8c7a3;
+    --barro-seco:#cdbb96;
+    --lacre:#7c1c1c;
+    --texto-pergamino:#3a2c1f;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth;}
+
+body{
+    color: var(--texto-pergamino);
+    background-color: var(--tierra);
+    font-family:'Crimson Pro',serif;
+    line-height:1.6;
+}
+
+/* NAV */
+nav{
+    position:fixed;
+    width:100%;
+    top:0;
+    display:flex;
+    justify-content:space-between;
+    padding:15px 50px;
+    background:rgba(26,21,18,0.98);
+    backdrop-filter:blur(8px);
+    border-bottom:2px solid var(--oro-viejo);
+    z-index:1000;
+}
+
+nav h1{
+    font-family:'MedievalSharp';
+    color:var(--oro-viejo);
+    font-size:1.4rem;
+}
+
+nav ul{
+    display:flex;
+    list-style:none;
+    gap:25px;
+    align-items:center;
+}
+
+nav a{
+    text-decoration:none;
+    color:var(--texto-pergamino);
+    font-size:0.75rem;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+/* HERO */
+.hero{
+    height:100vh;
+    background:
+    linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.4)),
+    url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=1600')
+    fixed center/cover;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+
+.hero-box{
+    background:rgba(26,21,18,0.9);
+    padding:50px 80px;
+    border:2px solid var(--oro-viejo);
+    box-shadow:0 15px 40px rgba(0,0,0,0.6);
+}
+
+.hero h2{
+    font-family:'MedievalSharp';
+    font-size:clamp(45px,7vw,80px);
+    margin-bottom:30px;
+    text-transform:uppercase;
+    letter-spacing:3px;
+    color:var(--oro-viejo);
+    text-shadow:2px 2px 4px black;
+}
+
+.btn{
+    display: inline-block;
+    text-decoration:none;
+    font-family:'MedievalSharp';
+    padding:15px 35px;
+    border:1px solid var(--oro-viejo);
+    color:white;
+    text-transform:uppercase;
+    font-size:0.9rem;
+    transition:0.4s;
+    background:var(--musgo-profundo);
+    cursor: pointer;
+}
+
+.btn:hover{
+    background:var(--oro-viejo);
+    color:var(--tierra);
+    transform:translateY(-3px);
+}
+
+/* SECCIONES */
+section{
+    padding:100px 12%;
+    text-align:center;
+}
+
+.section-paper{
+    background-color:var(--piedra-oscura);
+    background-image:url('https://www.transparenttextures.com/patterns/dark-matter.png');
+}
+
+h3{
+    font-family:'MedievalSharp';
+    font-size:2.8rem;
+    margin-bottom:40px;
+    color:var(--oro-viejo);
+    border-bottom:1px solid var(--oro-viejo);
+    display:inline-block;
+}
+
+.drop-cap::first-letter{
+    font-family:'MedievalSharp';
+    font-size:4.5rem;
+    float:left;
+    margin-right:15px;
+    color:var(--oro-viejo);
+    background:var(--tierra);
+    padding:10px 15px;
+    line-height:0.8;
+    margin-top:10px;
+}
+
+/* PARALLAX WINDOWS */
+.window-parallax{
+    height:550px;
+    background-attachment:fixed;
+    background-position:center;
+    background-size:cover;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-top:2px solid var(--oro-viejo);
+    border-bottom:2px solid var(--oro-viejo);
+}
+
+.overlay-portal{
+    background:rgba(26,21,18,0.92);
+    padding:40px;
+    border:2px solid var(--oro-viejo);
+    text-align:center;
+    max-width: 500px;
+}
+
+/* CONTACT */
+.contact-area{
+    padding:80px 20px;
+    background:var(--tierra);
+    border-top:2px solid var(--oro-viejo);
+}
+
+.btn-sello{
+    margin:30px auto 0;
+    width:150px;
+    height:140px;
+    background:var(--lacre);
+    color:white;
+    border:none;
+    font-family:'MedievalSharp';
+    cursor:pointer;
+    border-radius:50% 40% 60% 40%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-transform:uppercase;
+    transition:0.3s;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-sello:hover{
+    transform:scale(1.1) rotate(5deg);
+    box-shadow:0 0 20px var(--lacre);
+}
+
+/* FOOTER */
+footer{
+    padding:100px 10% 40px;
+    background:#0a0807;
+    color:#6d5b4e;
+    border-top:3px solid var(--oro-viejo);
+}
+
+.footer-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:50px;
+    text-align:left;
+}
+
+.footer-col h4{
+    color:var(--oro-viejo);
+    font-family:'MedievalSharp';
+    margin-bottom:20px;
+    text-transform:uppercase;
+}
+
+.footer-col ul{list-style:none;}
+.footer-col a{
+    color:#8d6e63;
+    text-decoration:none;
+    transition:0.3s;
+}
+.footer-col a:hover{color:var(--oro-viejo);}
+
+</style>
+</head>
+
+<body class="tema-pergamino">
+
+<nav>
+    <h1>Bioconstrucción y permacultura</h1>
+    <ul>
+        <li><a href="#biografia">Autor</a></li>
+        <li><a href="cursos.html">Talleres</a></li>
+        <li><a href="historial.html">Bitácora</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+    </ul>
+</nav>
+
+<header class="hero">
+    <div class="hero-box">
+        <h2>Antonio Moretti</h2>
+        <a href="cursos.html" class="btn">Explorar Saberes</a>
+    </div>
+</header>
+
+<main>
+
+    <section id="biografia" class="section-paper">
+        <h3>El Manifiesto</h3>
+        <p class="drop-cap">
+            La bioconstrucción no es solo técnica, es un manifiesto vivo. Regeneramos el suelo para sanar el alma, levantando refugios de barro y paja que respiran con la misma cadencia que quienes los habitan.
+        </p>
+    </section>
+
+    <div class="window-parallax" style="background-image:url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=1600');">
+        <div class="overlay-portal">
+            <h3 style="border:none; margin-bottom:10px;">Saberes en Marcha</h3>
+            <p style="margin-bottom:20px;">Formación técnica y espiritual en bioconstrucción.</p>
+            <a href="cursos.html" class="btn">Entrar al Repositorio</a>
+        </div>
+    </div>
+
+    <div class="window-parallax" style="background-image:url('https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&q=80&w=1600');">
+        <div class="overlay-portal">
+            <h3 style="border:none; margin-bottom:10px;">Bitácora de Obras</h3>
+            <p style="margin-bottom:20px;">El registro visual de nuestras construcciones.</p>
+            <a href="historial.html" class="btn">Ver Galería</a>
+        </div>
+    </div>
+
+    <section id="contacto" class="contact-area">
+        <h3 style="border:none;margin-bottom:10px;">El Llamado</h3>
+        <p style="color:var(--oro-viejo);font-style:italic;font-size:1.2rem;">
+            "Si la tierra te nombra, envía tu misiva para sellar la alianza."
+        </p>
+        <a href="mailto:info@nprdgm.com" class="btn-sello">Sellar<br>Mensaje</a>
+    </section>
+
+</main>
+
+<footer>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>N-PRDGM</h4>
+            <p>Laboratorio de Bio-Construcción y Permacultura.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Navegación</h4>
+            <ul>
+                <li><a href="cursos.html">Talleres y Cursos</a></li>
+                <li><a href="historial.html">Proyectos Activos</a></li>
+                <li><a href="descargables.html">Recursos PDF</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p>Zárate - Campana, Argentina</p>
+            <p>@antonio_moretti_ok</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
