@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-PRDGM | Saberes en Marcha</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
+
+<style>
+/* REUTILIZAMOS TU PALETA */
+:root {
+    --oro-viejo: #b8926a;
+    --tierra: #1a1512;
+    --piedra-oscura: #2d241e;
+    --musgo-profundo: #2a332a;
+    --texto-pergamino: #d7ccc8;
+}
+
+body {
+    color: var(--texto-pergamino);
+    background-color: var(--tierra);
+    background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
+    font-family: 'Crimson Pro', serif;
+    margin: 0;
+    padding-top: 120px; /* Espacio para el nav */
+}
+
+/* NAV FIJO */
+nav {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 50px;
+    background: rgba(26,21,18,0.98);
+    backdrop-filter: blur(8px);
+    border-bottom: 2px solid var(--oro-viejo);
+    z-index: 1000;
+}
+
+nav h1 { font-family: 'MedievalSharp'; color: var(--oro-viejo); font-size: 1.4rem; }
+nav a { text-decoration: none; color: var(--oro-viejo); font-family: 'MedievalSharp'; text-transform: uppercase; font-size: 0.8rem; }
+
+/* TITULOS */
+header { text-align: center; margin-bottom: 50px; }
+h3 {
+    font-family: 'MedievalSharp';
+    font-size: 3rem;
+    color: var(--oro-viejo);
+    border-bottom: 1px solid var(--oro-viejo);
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+/* GRID DE REPOSITORIO */
+.grid-repositorio {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+    padding: 0 10%;
+    margin-bottom: 100px;
+}
+
+/* CARD MEDIEVAL (CALCADA DE TU DISEÑO) */
+.organic-card {
+    background: rgba(45, 36, 30, 0.5);
+    padding: 25px;
+    border: 1px solid var(--oro-viejo);
+    transition: 0.3s;
+}
+
+.organic-card:hover { transform: translateY(-5px); background: rgba(45, 36, 30, 0.8); }
+
+.organic-card img, .organic-card iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border: 1px solid var(--oro-viejo);
+    margin-bottom: 20px;
+}
+
+.organic-card h4 {
+    font-family: 'MedievalSharp';
+    color: var(--oro-viejo);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.btn-mini {
+    display: inline-block;
+    text-decoration: none;
+    font-family: 'MedievalSharp';
+    padding: 10px 20px;
+    border: 1px solid var(--oro-viejo);
+    color: white;
+    background: var(--musgo-profundo);
+    font-size: 0.7rem;
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) { nav { padding: 15px 20px; } }
+</style>
+</head>
+
+<body>
+
+<nav>
+    <h1>N-PRDGM</h1>
+    <a href="index.html">← Volver al Feudo</a>
+</nav>
+
+<header>
+    <h3 id="seccion-titulo">Saberes</h3>
+</header>
+
+<main id="app" class="grid-repositorio">
+    </main>
+
+<script>
+    const SHEET_ID = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
+    const SECCION_FILTRO = 'Cursos'; // En historial.html cambiás esto a 'Historial'
+
+    async function fetchData() {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        
+        try {
+            const response = await fetch(url);
+            const csvText = await response.text();
+            
+            // Dividir filas y procesar columnas
+            const rows = csvText.split('\n').slice(1);
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+
+            rows.forEach(row => {
+                const cols = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+                const [seccion, titulo, descripcion, link, imagen] = cols.map(c => c.replace(/"/g, '').trim());
+
+                if (seccion.toLowerCase() === SECCION_FILTRO.toLowerCase()) {
+                    let mediaHTML = '';
+                    
+                    // Si hay link de YouTube, ponemos el video, si no, la imagen
+                    if (link && (link.includes('youtube.com') || link.includes('youtu.be'))) {
+                        const videoId = link.split('v=')[1] || link.split('/').pop();
+                        mediaHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                    } else {
+                        mediaHTML = `<img src="${imagen || 'https://via.placeholder.com/400x225'}" alt="${titulo}">`;
+                    }
+
+                    app.innerHTML += `
+                        <article class="organic-card">
+                            ${mediaHTML}
+                            <h4>${titulo}</h4>
+                            <p>${descripcion}</p>
+                            ${link ? `<a href="${link}" target="_blank" class="btn-mini">VER RECURSO</a>` : ''}
+                        </article>
+                    `;
+                }
+            });
+        } catch (error) {
+            console.error("Error cargando el feudo:", error);
+            document.getElementById('app').innerHTML = "<p>Hubo un error al leer los pergaminos...</p>";
+        }
+    }
+
+    fetchData();
+</script>
+
+</body>
+</html>
