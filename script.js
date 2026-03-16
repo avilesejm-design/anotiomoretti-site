@@ -1,33 +1,30 @@
-const sheetId = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE'; // <--- ASEGURATE QUE SEA ESTE
-const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-
-const app = document.getElementById('app');
+const sheetId = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
+// Usamos el formato CSV que es más simple y no suele fallar nunca
+const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
 
 async function fetchData() {
     try {
         const response = await fetch(base);
-        const text = await response.text();
-        // Esta línea corta el texto raro que manda Google para dejar solo el JSON
-        const data = JSON.parse(text.substring(47).slice(0, -2));
-        const rows = data.table.rows;
-
+        const csvText = await response.text();
+        
+        // Convertimos el CSV a filas
+        const rows = csvText.split('\n').map(row => row.split(','));
+        const app = document.getElementById('app');
         app.innerHTML = ''; 
 
-        rows.forEach(row => {
-            // Verificamos que la fila no esté vacía antes de procesar
-            if (row.c && row.c[1]) {
-                const seccion = row.c[0] ? row.c[0].v : '';
-                const titulo = row.c[1] ? row.c[1].v : '';
-                const desc = row.c[2] ? row.c[2].v : '';
-                const link = row.c[3] ? row.c[3].v : '';
-                const imagen = row.c[4] ? row.c[4].v : '';
+        // Empezamos desde i=1 para saltar los encabezados
+        for (let i = 1; i < rows.length; i++) {
+            const [seccion, titulo, desc, link, imagen] = rows[i];
 
-                let mediaHTML = '';
-                if (link && (link.includes('youtube.com') || link.includes('youtu.be'))) {
-                    const videoId = link.split('v=')[1] || link.split('/').pop();
+            if (titulo) {
+                let mediaHTML = `<img src="${imagen}" style="width:100%;">`;
+                
+                // Limpiamos el link de posibles espacios o comillas
+                const cleanLink = link.trim().replace(/"/g, '');
+                
+                if (cleanLink.includes('youtube.com') || cleanLink.includes('youtu.be')) {
+                    const videoId = cleanLink.split('v=')[1] || cleanLink.split('/').pop();
                     mediaHTML = `<div class="video-container"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`;
-                } else {
-                    mediaHTML = `<img src="${imagen || 'https://via.placeholder.com/300'}" style="width:100%;">`;
                 }
 
                 app.innerHTML += `
@@ -35,13 +32,13 @@ async function fetchData() {
                         ${mediaHTML}
                         <h3>${titulo}</h3>
                         <p>${desc}</p>
-                        <a href="${link}" target="_blank">Ver más</a>
+                        <a href="${cleanLink}" target="_blank">Ver más</a>
                     </div>`;
             }
-        });
-    } catch (error) {
-        console.error("Error detallado:", error);
-        app.innerHTML = '<p>Error de conexión. Verificá el ID y la Publicación del Sheets.</p>';
+        }
+    } catch (e) {
+        console.error(e);
+        document.getElementById('app').innerHTML = '<p>Error de acceso. Por favor, verificá que el Sheets esté "Publicado en la Web".</p>';
     }
 }
 fetchData();
