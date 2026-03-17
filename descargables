@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>N-PRDGM | Recursos</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+    :root { --oro: #b8926a; --tierra: #1a1512; --pergamino: #e8dcc4; }
+    body { background: var(--tierra); color: var(--pergamino); font-family: 'Crimson Pro', serif; padding: 100px 10%; }
+    nav { position: fixed; width: 100%; top: 0; left: 0; padding: 20px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--oro); display: flex; justify-content: space-between; z-index: 100; }
+    .scroll-item { background: #2d241e; border-left: 5px solid var(--oro); margin-bottom: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-download { color: var(--oro); text-decoration: none; border: 1px solid var(--oro); padding: 5px 15px; font-family: 'MedievalSharp'; }
+</style>
+</head>
+<body>
+<nav>
+    <span style="font-family:'MedievalSharp'; color:var(--oro);">N-PRDGM</span>
+    <a href="index.html" style="color:var(--oro); text-decoration:none;">← INICIO</a>
+</nav>
+<h2 style="font-family:'MedievalSharp'; color:var(--oro); font-size:3rem; margin-bottom:40px;">Recursos y Manuales</h2>
+<div id="recursos-list">
+    </div>
+
+<script>
+    async function cargarRecursos() {
+        const SHEET_ID = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const resp = await fetch(url);
+        const data = await resp.text();
+        const filas = data.split('\n').slice(1);
+        const contenedor = document.getElementById('recursos-list');
+
+        filas.forEach(f => {
+            const [sec, tit, desc, lnk] = f.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
+            if(sec === 'Descargables') {
+                contenedor.innerHTML += `
+                <div class="scroll-item">
+                    <div>
+                        <h4 style="color:var(--oro); font-family:'MedievalSharp';">${tit}</h4>
+                        <p>${desc}</p>
+                    </div>
+                    <a href="${lnk}" class="btn-download" target="_blank">DESCARGAR</a>
+                </div>`;
+            }
+        });
+    }
+    cargarRecursos();
+</script>
+</body>
+</html>
