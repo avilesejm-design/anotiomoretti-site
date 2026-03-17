@@ -1,64 +1,34 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>N-PRDGM | Antonio Moretti</title>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
-<style>
-/* ... (Se mantienen tus estilos medievales anteriores) ... */
-:root {
-    --oro-viejo: #b8926a; --tierra: #1a1512; --piedra-oscura: #2d241e;
-    --musgo-profundo: #2a332a; --barro-seco: #4e342e; --lacre: #8b1e1e;
-    --texto-pergamino: #d7ccc8;
-}
-*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth;}
-body{color:var(--texto-pergamino);background-color:var(--tierra);font-family:'Crimson Pro',serif;line-height:1.6;}
-nav{position:fixed;width:100%;top:0;display:flex;justify-content:space-between;padding:15px 50px;background:rgba(26,21,18,0.98);border-bottom:2px solid var(--oro-viejo);z-index:1000;}
-nav h1{font-family:'MedievalSharp';color:var(--oro-viejo);font-size:1.4rem;}
-nav ul{display:flex;list-style:none;gap:25px;}
-nav a{text-decoration:none;color:var(--texto-pergamino);font-size:0.75rem;text-transform:uppercase;}
-.hero{height:100vh;background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.4)),url('fondo1.jpg') fixed center/cover;display:flex;align-items:center;justify-content:center;text-align:center;}
-.hero-box{background:rgba(26,21,18,0.9);padding:50px 80px;border:2px solid var(--oro-viejo);}
-.hero h2{font-family:'MedievalSharp';font-size:clamp(45px,7vw,80px);color:var(--oro-viejo);}
-.btn{display:inline-block;text-decoration:none;font-family:'MedievalSharp';padding:15px 35px;border:1px solid var(--oro-viejo);color:white;background:var(--musgo-profundo);cursor:pointer;}
-section{padding:100px 12%;text-align:center;}
-.window-parallax{height:550px;background-attachment:fixed;background-position:center;background-size:cover;display:flex;align-items:center;justify-content:center;border-top:2px solid var(--oro-viejo);border-bottom:2px solid var(--oro-viejo);}
-.overlay-portal{background:rgba(26,21,18,0.92);padding:40px;border:2px solid var(--oro-viejo);text-align:center;max-width:500px;}
-</style>
-</head>
-<body class="tema-pergamino">
 <nav>
     <h1>Bioconstrucción</h1>
     <ul>
-        <li><a href="cursos.html">Talleres</a></li>
-        <li><a href="historial.html">Bitácora</a></li>
-        <li><a href="descargables.html">Recursos</a></li>
+        <li><a href="galeria.html">Galería</a></li>
+        <li><a href="cursos.html">Cursos</a></li>
+        <li><a href="descargables.html">Descargables</a></li>
+        <li><a href="historico.html">Histórico</a></li>
+        <li><a href="amigas.html">Páginas Amigas</a></li>
     </ul>
 </nav>
-<header class="hero">
-    <div class="hero-box">
-        <h2>Antonio Moretti</h2>
-        <a href="cursos.html" class="btn">Explorar Saberes</a>
+
+<div class="window-parallax" style="background-image:url('fondo1.jpg');">
+    <div class="overlay-portal">
+        <h3>Galería</h3>
+        <p>Fotos y videos de nuestras obras.</p>
+        <a href="galeria.html" class="btn">Abrir Galería</a>
     </div>
-</header>
-<main>
-    <section id="biografia">
-        <h3 style="font-family:'MedievalSharp';font-size:2.8rem;color:var(--oro-viejo);">El Manifiesto</h3>
-        <p style="padding:20px;font-size:1.2rem;">Regeneramos el suelo para sanar el alma, levantando refugios que respiran.</p>
-    </section>
-    <div class="window-parallax" style="background-image:url('fondo2.jpg');">
-        <div class="overlay-portal">
-            <h3 style="font-family:'MedievalSharp';color:var(--oro-viejo);">Saberes en Marcha</h3>
-            <a href="cursos.html" class="btn">Entrar al Repositorio</a>
-        </div>
+</div>
+
+<div class="window-parallax" style="background-image:url('fondo2.jpg');">
+    <div class="overlay-portal">
+        <h3>Cursos</h3>
+        <p>Formación y contacto directo.</p>
+        <a href="cursos.html" class="btn">Ver Cursos</a>
     </div>
-    <div class="window-parallax" style="background-image:url('fondo3.jpg');">
-        <div class="overlay-portal">
-            <h3 style="font-family:'MedievalSharp';color:var(--oro-viejo);">Bitácora de Obras</h3>
-            <a href="historial.html" class="btn">Ver Galería</a>
-        </div>
+</div>
+
+<div class="window-parallax" style="background-image:url('fondo3.jpg');">
+    <div class="overlay-portal">
+        <h3>Descargables</h3>
+        <p>Clases y documentos técnicos.</p>
+        <a href="descargables.html" class="btn">Ver Archivos</a>
     </div>
-</main>
-</body>
-</html>
+</div>
