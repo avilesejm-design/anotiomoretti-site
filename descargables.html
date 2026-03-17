@@ -1,50 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>N-PRDGM | Recursos</title>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
-<style>
-    :root { --oro: #b8926a; --tierra: #1a1512; --pergamino: #e8dcc4; }
-    body { background: var(--tierra); color: var(--pergamino); font-family: 'Crimson Pro', serif; padding: 100px 10%; }
-    nav { position: fixed; width: 100%; top: 0; left: 0; padding: 20px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--oro); display: flex; justify-content: space-between; z-index: 100; }
-    .scroll-item { background: #2d241e; border-left: 5px solid var(--oro); margin-bottom: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-    .btn-download { color: var(--oro); text-decoration: none; border: 1px solid var(--oro); padding: 5px 15px; font-family: 'MedievalSharp'; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-PRDGM | Repositorio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+        :root { --oro: #b8926a; --tierra: #1a1512; --musgo: #2a332a; --pergamino: #d7ccc8; }
+        body { background: var(--tierra); color: var(--pergamino); font-family: 'Crimson Pro', serif; margin: 0; padding-top: 100px; }
+        nav { position: fixed; width: 100%; top: 0; display: flex; justify-content: space-between; padding: 15px 50px; background: #000; border-bottom: 2px solid var(--oro); z-index: 1000; }
+        h1, h2 { font-family: 'MedievalSharp'; color: var(--oro); text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; padding: 40px 10%; }
+        .card { background: rgba(45, 36, 30, 0.6); border: 1px solid var(--oro); padding: 20px; transition: 0.3s; }
+        .card img, .card iframe { width: 100%; aspect-ratio: 16/9; border: 1px solid var(--oro); margin-bottom: 15px; }
+        .btn-link { display: inline-block; padding: 10px 20px; border: 1px solid var(--oro); color: white; text-decoration: none; font-family: 'MedievalSharp'; background: var(--musgo); font-size: 0.8rem; }
+    </style>
 </head>
 <body>
-<nav>
-    <span style="font-family:'MedievalSharp'; color:var(--oro);">N-PRDGM</span>
-    <a href="index.html" style="color:var(--oro); text-decoration:none;">← INICIO</a>
-</nav>
-<h2 style="font-family:'MedievalSharp'; color:var(--oro); font-size:3rem; margin-bottom:40px;">Recursos y Manuales</h2>
-<div id="recursos-list">
-    </div>
+    <nav>
+        <h1 style="font-size: 1.2rem;">N-PRDGM</h1>
+        <a href="index.html" style="color:var(--oro); text-decoration:none; font-family:'MedievalSharp';">← VOLVER</a>
+    </nav>
 
-<script>
-    async function cargarRecursos() {
+    <h2 id="titulo-seccion" style="font-size: 3rem; margin-top: 40px;">Cargando...</h2>
+    <main id="app" class="grid"></main>
+
+    <script>
         const SHEET_ID = '13Qqp0VlWF94msoKVss6cRxKvtpxkpds_5V4wdIGPmfE';
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
-        const resp = await fetch(url);
-        const data = await resp.text();
-        const filas = data.split('\n').slice(1);
-        const contenedor = document.getElementById('recursos-list');
+        // CAMBIÁ ESTO EN CADA ARCHIVO: 'Galeria', 'Cursos', 'Descargables', 'Historico' o 'Amigas'
+        const SECCION_FILTRO = 'Galeria'; 
 
-        filas.forEach(f => {
-            const [sec, tit, desc, lnk] = f.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
-            if(sec === 'Descargables') {
-                contenedor.innerHTML += `
-                <div class="scroll-item">
-                    <div>
-                        <h4 style="color:var(--oro); font-family:'MedievalSharp';">${tit}</h4>
-                        <p>${desc}</p>
-                    </div>
-                    <a href="${lnk}" class="btn-download" target="_blank">DESCARGAR</a>
-                </div>`;
-            }
-        });
-    }
-    cargarRecursos();
-</script>
+        async function init() {
+            document.getElementById('titulo-seccion').innerText = SECCION_FILTRO;
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+            const resp = await fetch(url);
+            const csv = await resp.text();
+            const rows = csv.split('\n').slice(1);
+            const app = document.getElementById('app');
+
+            rows.forEach(row => {
+                const [sec, tit, desc, lnk, img] = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
+                if (sec.toLowerCase() === SECCION_FILTRO.toLowerCase()) {
+                    let media = lnk.includes('youtube') ? `<iframe src="https://www.youtube.com/embed/${lnk.split('v=')[1] || lnk.split('/').pop()}" frameborder="0" allowfullscreen></iframe>` : `<img src="${img || 'https://via.placeholder.com/400'}">`;
+                    
+                    app.innerHTML += `
+                        <article class="card">
+                            ${media}
+                            <h4 style="font-family:'MedievalSharp'; color:var(--oro); margin-bottom:10px;">${tit}</h4>
+                            <p>${desc}</p>
+                            ${lnk ? `<a href="${lnk}" target="_blank" class="btn-link">ABRIR</a>` : ''}
+                        </article>`;
+                }
+            });
+        }
+        init();
+    </script>
 </body>
 </html>
